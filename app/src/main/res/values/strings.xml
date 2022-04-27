@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">相对分子质量计算器</string>
+    <string name="super_button">按钮</string>
+    <string name="hint_input">在此输入化学式</string>
+    <string name="hint_switch_history">记录历史(未启用)</string>
+
+</resources>

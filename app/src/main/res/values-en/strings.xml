@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MassCalc</string>
+    <string name="super_button">A Button</string>
+    <string name="hint_input">Chemical</string>
+    <string name="hint_switch_history">History(unavailable)</string>
+</resources>
