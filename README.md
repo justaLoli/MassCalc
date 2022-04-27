@@ -15,3 +15,5 @@
 输入案例： `Cu(OH)2CO3`,`(Ag(NH3)2)2SO4`
 
 github新人，请多指教:P
+
+![使用案例](https://user-images.githubusercontent.com/92238102/165542089-4381fdf2-857b-4759-a95c-fe02ed2e5761.png)
