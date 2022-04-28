@@ -1,4 +1,4 @@
-# MassCalc
+# MassCalc-Android
 
 相对分子质量计算器
 
