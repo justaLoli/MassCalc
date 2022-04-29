@@ -1,9 +1,13 @@
 package com.justaloli.masscalc
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
+import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -41,11 +45,21 @@ class MainActivity : AppCompatActivity() {
             textView.text = "";true //这个true是这个长按监听需要的一个值，没啥用，就true吧
         }//设置长按清屏
 
+        //设置scrollview自动滚到底
+        scrollView.viewTreeObserver.addOnGlobalLayoutListener {
+            scrollView.post(){
+                kotlin.run { scrollView.fullScroll(View.FOCUS_DOWN)}
+            }
+        }
     }
     private fun processInput(){ //处理
         val input = editText.text.toString() //获取输入框的输入
         val mass = calcMain(input) //调用计算函数
-        myprint("$input : $mass") //输出结果
+        if(mass!=0.0) {
+            val massStr = String.format("%.3f", mass)
+            myprint("$input : $massStr") //输出结果
+            ShareUtil.putString(input,mass.toString(),applicationContext)
+        }
     }
 
     // 两个用于相对分子质量的函数
@@ -58,7 +72,9 @@ class MainActivity : AppCompatActivity() {
             if(relist[1]==""){
                 relist[1] = "1"
             }
-            mm[relist[0]]?.also { r+=it*relist[1].toInt()}
+            val m = mm.getOrDefault(relist[0],0.0)
+            if(m==0.0){return 0.0}
+            r+=m*(relist[1].toInt())
         }
         return r
     }
@@ -66,7 +82,7 @@ class MainActivity : AppCompatActivity() {
         mm[input]?.also { return it }
         var res = 0.0
         var allMatch = ""
-        Regex("\\([^()]*(((\\()[^()]*)+((\\))[^()]*)+)*\\)[0-9]*|[A-Z][a-z]*[0-9]*").findAll(input).forEach {
+        Regex("\\([^()]*(((\\()[^()]*)+((\\))[^()]*)+)*\\)[0-9]*|[A-Z][a-z]?[0-9]*").findAll(input).forEach {
             val i = it.value
             allMatch+=i
             if(i!=""){
@@ -83,11 +99,16 @@ class MainActivity : AppCompatActivity() {
                 else{
                     r = calcMass(arrayOf(i))
                 }
+                if(r==0.0){
+                    myprint("input incorrect. input: $input")
+                    return 0.0
+                }
                 res+=r
             }
         }
+//        if(allMatch!=input){
         if(allMatch!=input){
-            myprint("input incorrect. matched:$allMatch ; input:$input")
+            myprint("input incorrect. input: $input")
             res = 0.0
         }
         //写入历史部分 目前停用
@@ -111,9 +132,34 @@ class MainActivity : AppCompatActivity() {
 //        }
 //        mm.putAll(historyList)
     }
+    object ShareUtil{
+        var sps: SharedPreferences?=null
+        fun getSps(context: Context): SharedPreferences {
+            if(sps==null){
+                sps = context.getSharedPreferences("default", Context.MODE_PRIVATE)
+            }
+            return sps!!
+        }
+        fun putString(key:String,value:String?,context: Context){
+            if(!value.isNullOrBlank()){
+                val editor: SharedPreferences.Editor = getSps(context).edit()
+                editor.putString(key,value)
+                editor.apply()
+            }
+        }
+        fun getString(key:String,context: Context):String?{
+            if(!key.isBlank()){
+                val sps = getSps(context)
+                return sps.getString(key,null)
+            }
+            return null
+        }
+
+    }
     //打印输出结果函数
     private fun myprint(text:String, isclear:Boolean=false){
         if(isclear){textView.text=""}
-        textView.append("\noutput:$text\n")
+        textView.append("\n$text\n")
+
     }
 }
